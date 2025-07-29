@@ -21,7 +21,7 @@ public class MarcaController {
     }
 
     @GetMapping
-    public List<MarcaDto> listarMarcas() {
+    public List<MarcaDto> buscarMarcasComQuantidadeDeModelos() {
         return marcaComponent.buscarMarcasComQuantidadeDeModelos();
     }
 }
