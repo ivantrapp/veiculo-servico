@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: ProjetoBackendApplication
+  datasource:
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+  rabbitmq:
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 1000
+          max-interval: 10000
+          multiplier: 2
+
+  flyway:
+    enabled: true
+    schemas: public
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+logging:
+  level:
+    org:
+      flywaydb: DEBUG
+
+app:
+  fipe-service:
+    referer: http://veiculos.fipe.org.br
+    host: veiculos.fipe.org.br

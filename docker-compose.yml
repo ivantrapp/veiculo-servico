@@ -1,0 +1,59 @@
+services:
+  db:
+    image: postgres
+    restart: always
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_USER=postgres
+    ports:
+      - 6000:5432
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 2181:2181
+
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: 'rabbitmq'
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  spring-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: spring-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_FLYWAY_URL: jdbc:postgresql://db:5432/postgres
+      SPRING_FLYWAY_USER: postgres
+      SPRING_FLYWAY_PASSWORD: 1234
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+    restart: on-failure
+volumes:
+  db-data:
